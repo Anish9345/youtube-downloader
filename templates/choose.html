@@ -4,25 +4,15 @@
     <title>Choose Format</title>
 </head>
 <body>
-    <h2>{{ yt.title }}</h2>
-    <img src="{{ yt.thumbnail_url }}" width="300"><br><br>
+    <h2>{{ title }}</h2>
+    <img src="{{ thumbnail }}" width="300"><br><br>
 
-    <h3>🎥 Video (MP4)</h3>
-    {% for v in videos %}
-        <form action="/download" method="POST">
-            <input type="hidden" name="url" value="{{ yt.watch_url }}">
-            <input type="hidden" name="itag" value="{{ v.itag }}">
-            <button type="submit">{{ v.resolution }} ({{ v.mime_type }})</button>
-        </form>
-    {% endfor %}
-
-    <h3>🎵 Audio (MP3)</h3>
-    {% for a in audios %}
-        <form action="/download" method="POST">
-            <input type="hidden" name="url" value="{{ yt.watch_url }}">
-            <input type="hidden" name="itag" value="{{ a.itag }}">
-            <button type="submit">{{ a.abr }} (MP3)</button>
-        </form>
+    {% for f in formats %}
+    <form action="/download" method="POST">
+        <input type="hidden" name="url" value="{{ url }}">
+        <input type="hidden" name="format_id" value="{{ f.format_id }}">
+        <button type="submit">{{ f.quality }} ({{ f.ext }})</button>
+    </form>
     {% endfor %}
 </body>
 </html>

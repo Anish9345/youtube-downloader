@@ -13,12 +13,22 @@ def home():
 def fetch():
     url = request.form['url']
 
-    ydl_opts = {'listformats': True}
+    ydl_opts = {
+        'format': 'best',
+        'outtmpl': 'video.%(ext)s',
+        'noplaylist': True,
+        'ignoreerrors': True,
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['web']  # force normal web extractor
+            }
+        }
+    }
+
     formats = []
     title = ""
     thumbnail = ""
 
-    # Extract available formats
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=False)
         title = info.get("title", "Video")
@@ -31,7 +41,6 @@ def fetch():
                     "ext": "mp4"
                 })
             elif f.get("acodec") != "none" and f.get("vcodec") == "none":
-                # audio only
                 formats.append({
                     "format_id": f["format_id"],
                     "quality": f.get("abr", "128") + " kbps",
@@ -46,12 +55,17 @@ def download():
     url = request.form['url']
     format_id = request.form['format_id']
 
-    # temp filename
     outtmpl = "download.%(ext)s"
-
     ydl_opts = {
         'format': format_id,
         'outtmpl': outtmpl,
+        'noplaylist': True,
+        'ignoreerrors': True,
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['web']
+            }
+        },
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
@@ -63,7 +77,6 @@ def download():
         info = ydl.extract_info(url, download=True)
         filename = ydl.prepare_filename(info)
 
-    # if mp3, adjust filename
     if filename.endswith(".webm") or filename.endswith(".m4a"):
         filename = filename.rsplit(".", 1)[0] + ".mp3"
 
